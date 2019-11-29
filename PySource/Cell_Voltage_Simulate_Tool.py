@@ -9,6 +9,46 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+import sys
+import os
+import struct
+import time
+if hasattr(sys, 'frozen'):
+    os.environ['PATH'] = sys._MEIPASS + ";" + os.environ['PATH']
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QMainWindow, QApplication
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtWidgets import QMessageBox,QFileDialog
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt, pyqtSignal, QTimer,QDateTime
+
+CAN_RunTimer = QTimer()
+CANDeviceNameNumber = 3
+CANDeviceIndexNumber = 0
+CANDeviceChannelNumber = 0
+CANDeviceBoundRate = 0x011C
+CANBuffer = [[0 for x in range(10)] for y in range(50)]#50帧的数据缓存
+
+class _VCI_INIT_CONFIG(Structure):
+    _fields_ = [('AccCode', c_ulong),
+                ('AccMask', c_ulong),
+                ('Reserved', c_ulong),
+                ('Filter', c_ubyte),
+                ('Timing0', c_ubyte),
+                ('Timing1', c_ubyte),
+                ('Mode', c_ubyte)]
+
+class _VCI_CAN_OBJ(Structure):
+    _fields_ = [('ID', c_uint),
+                ('TimeStamp', c_uint),
+                ('TimeFlag', c_byte),
+                ('SendType', c_byte),
+                ('RemoteFlag', c_byte),
+                ('ExternFlag', c_byte),
+                ('DataLen', c_byte),
+                ('Data', c_byte * 8),
+                ('Reserved', c_byte * 3)]
 
 class Ui_Cell_Voltage_Simulate_Tool(object):
     def setupUi(self, Cell_Voltage_Simulate_Tool):
@@ -134,3 +174,17 @@ class Ui_Cell_Voltage_Simulate_Tool(object):
         self.Graph.setTabText(self.Graph.indexOf(self.RemainCAP), _translate("Cell_Voltage_Simulate_Tool", "剩余容量"))
         self.checkBox_AutoMode.setText(_translate("Cell_Voltage_Simulate_Tool", "自动充放电循环"))
         self.checkBox_SaveData.setText(_translate("Cell_Voltage_Simulate_Tool", "保存数据"))
+
+class Main(QMainWindow, Ui_Cell_Voltage_Simulate_Tool):
+    def __init__(self):
+        super(Main, self).__init__()
+        self.setupUi(self)
+
+if __name__ == "__main__":
+    COM_Status = 0
+    app = QApplication(sys.argv)
+    MainWindows = Main()
+
+    MainWindows.show()
+
+    sys.exit(app.exec_())
